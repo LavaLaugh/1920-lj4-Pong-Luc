@@ -1,0 +1,112 @@
+import arcade
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+SCREEN_TITLE = "Pong 9000"
+MOVEMENT_SPEED = 5
+BALL_SPEED = 3
+
+class Ball():
+    
+    def __init__(self, center_x, center_y, radius, color, speed_x, speed_y):
+        self.center_x = center_x
+        self.center_y = center_y
+        self.radius = radius
+        self.color = color
+        self.speed_x = speed_x
+        self.speed_y = speed_y
+    
+    def setup(self):
+        pass
+   
+    def on_draw(self):
+        arcade.draw_circle_filled(self.center_x, self.center_y, self.radius, self.color)
+    
+    def on_update(self, delta_time):
+        self.center_x = self.center_x + self.speed_x
+        self.center_y = self.center_y + self.speed_y
+        
+        if self.center_x + self.radius >= SCREEN_WIDTH:
+            self.speed_x = self.speed_x *-1
+        elif self.center_x + self.radius <= 0:
+            self.speed_x = self.speed_x *-1
+        if self.center_y + self.radius >= SCREEN_HEIGHT:
+            self.speed_y = self.speed_y *-1
+        elif self.center_y + self.radius <= 0:
+            self.speed_y = self.speed_y *-1       
+        
+class Paddle():
+    
+    def __init__(self, center_x, center_y, width, height, color, speed_y):
+        self.center_x = center_x
+        self.center_y = center_y
+        self.width = width
+        self.height = height
+        self.speed_y = speed_y
+        self.color = color
+     
+    def setup(self):
+         pass
+    def on_draw(self):
+        arcade.draw_rectangle_filled(self.center_x, self.center_y, self.width, self.height, self.color)
+    
+    def on_update(self, delta_time):
+        self.center_y = self.center_y + self.speed_y
+        if self.center_y + self.height // 2 >= SCREEN_HEIGHT:
+            self.speed_y = self.speed_y *0
+        elif self.center_y - self.height // 2 <= 0:
+            self.speed_y = self.speed_y *0
+
+class BasicPong(arcade.Window):
+    
+    def __init__(self, width, height, title):
+        super().__init__(width, height, title)
+        arcade.set_background_color(arcade.color.BLACK)
+        self.ball = Ball(400, 300, 15, arcade.color.WHITE, 3, 3)
+        self.rectangle_a = Paddle(25, 300, 20, 100, arcade.color.WHITE, 0)
+        self.rectangle_b = Paddle(775, 300, 20, 100, arcade.color.WHITE, 0)
+   
+    def setup(self):
+        pass
+   
+    def on_draw(self):
+        arcade.start_render()
+        self.ball.on_draw()
+        self.rectangle_a.on_draw()
+        self.rectangle_b.on_draw()
+    
+    def on_update(self, delta_time):
+        self.ball.on_update(delta_time)
+        self.rectangle_a.on_update(delta_time)
+        self.rectangle_b.on_update(delta_time)
+        
+        if self.ball.center_x - self.ball.radius <= self.rectangle_a.center_x + self.rectangle_a.width // 2 and self.ball.center_x + self.ball.radius >= self.rectangle_a.center_x - self.rectangle_a.width // 2 and self.ball.center_y - self.ball.radius <= self.rectangle_a.center_y + self.rectangle_a.height // 2 and self.ball.center_y + self.ball.radius >= self.rectangle_a.center_y - self.rectangle_a.height // 2:
+            self.ball.speed_x = self.ball.speed_x *-1   
+        if self.ball.center_x - self.ball.radius <= self.rectangle_b.center_x + self.rectangle_b.width // 2 and self.ball.center_x + self.ball.radius >= self.rectangle_b.center_x - self.rectangle_b.width // 2 and self.ball.center_y - self.ball.radius <= self.rectangle_b.center_y + self.rectangle_b.height // 2 and self.ball.center_y + self.ball.radius >= self.rectangle_b.center_y - self.rectangle_b.height // 2:
+            self.ball.speed_x = self.ball.speed_x *-1
+    
+    def on_key_press(self, key, key_modifiers):
+        if key == arcade.key.W:
+            self.rectangle_a.speed_y = MOVEMENT_SPEED
+        if key == arcade.key.S:
+            self.rectangle_a.speed_y = -MOVEMENT_SPEED
+        if key == arcade.key.UP:
+            self.rectangle_b.speed_y = MOVEMENT_SPEED
+        if key == arcade.key.DOWN:
+            self.rectangle_b.speed_y = -MOVEMENT_SPEED
+        
+    def on_key_release(self, key, key_modifiers):
+        if key == arcade.key.W:
+            self.rectangle_a.speed_y = 0
+        if key == arcade.key.S:
+            self.rectangle_a.speed_y = 0
+        if key == arcade.key.UP:
+            self.rectangle_b.speed_y = 0
+        if key == arcade.key.DOWN:
+            self.rectangle_b.speed_y = 0
+def main():
+    game = BasicPong(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    game.setup()
+    arcade.run()
+
+if __name__ == "__main__":
+    main()
